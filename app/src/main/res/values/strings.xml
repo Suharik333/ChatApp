@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ChatApp</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_make_discoverable">Make discoverable</string>
+    <string name="title_activity_messages">MessagesActivity</string>
+    <string name="action_search_for_new_devices">Search for new devices</string>
+</resources>

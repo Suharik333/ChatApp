@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#5b95c2"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/nav_header_padding_left"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/nav_header_padding_top"
+    android:paddingBottom="@dimen/nav_header_padding_bottom"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:src="@drawable/alchemist" />
+
+    <TextView
+        android:id="@+id/nav_header_first_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:textColor="@color/nav_bar_first_line"
+        android:textSize="@dimen/nav_header_first_line"
+        android:textStyle="bold"
+        android:text="Igor Sakhankov"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    <TextView
+        android:id="@+id/nav_header_second_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/nav_bar_second_line"
+        android:textSize="@dimen/nav_header_second_line"
+        android:text="android.studio@android.com" />
+
+</LinearLayout>
