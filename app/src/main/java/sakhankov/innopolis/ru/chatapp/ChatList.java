@@ -3,19 +3,15 @@ package sakhankov.innopolis.ru.chatapp;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.le.ScanFilter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.ParcelUuid;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -37,11 +34,13 @@ public class ChatList extends AppCompatActivity
     private static ChatsAdapter mChatsAdapter = null;
     private static BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothChatService mChatService = null;
+    private ChatDbHelper dbHelper;
 
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
     private static ProgressDialog progressDialog = null;
+    private String mac_address;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +58,7 @@ public class ChatList extends AppCompatActivity
             }
         });
 
+        dbHelper = new ChatDbHelper(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -71,7 +71,7 @@ public class ChatList extends AppCompatActivity
         initializeBluetooth();
 
         if (mChatsAdapter == null) {
-            List<Chat> allProjects = Dao.getAllProjects();
+            List<Chat> allProjects = Dao.getAllChats(dbHelper);
             mChatsAdapter = new ChatsAdapter(this, allProjects);
         }
         ListView list = (ListView) findViewById(R.id.chatlist);
@@ -81,12 +81,8 @@ public class ChatList extends AppCompatActivity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String address = String.valueOf(((TextView) view.findViewById(R.id.mac_address)).getText());
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                mac_address = address;
                 mChatService.connect(device);
-                progressDialog = new ProgressDialog(ChatList.this,
-                        R.style.AppTheme);
-                progressDialog.setIndeterminate(true);
-                progressDialog.setMessage("Authenticating...");
-                progressDialog.show();
             }
         });
     }
@@ -154,30 +150,31 @@ public class ChatList extends AppCompatActivity
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BluetoothChatService.STATE_CONNECTED:
+                            Dao.saveChat(dbHelper, new Chat("name", mac_address));
                             Intent intent = new Intent(ChatList.this, MessagesActivity.class);
+                            intent.putExtra(Constants.MAC_ADDRESS, mac_address);
                             startActivity(intent);
                             progressDialog.dismiss();
                             break;
                         case BluetoothChatService.STATE_CONNECTING:
+                            progressDialog = new ProgressDialog(ChatList.this,
+                                    R.style.AppTheme);
+                            progressDialog.setIndeterminate(true);
+                            progressDialog.setMessage("Trying to connect...");
+                            progressDialog.show();
                             break;
                         case BluetoothChatService.STATE_LISTEN:
                         case BluetoothChatService.STATE_NONE:
                             progressDialog.dismiss();
+                            Toast.makeText(ChatList.this, "Cannot connect", Toast.LENGTH_SHORT).show();
                             break;
                     }
                     break;
                 case Constants.MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
                     break;
                 case Constants.MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
                     break;
                 case Constants.MESSAGE_TOAST:
                     break;

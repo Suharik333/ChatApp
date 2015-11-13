@@ -3,7 +3,10 @@ package sakhankov.innopolis.ru.chatapp;
 import java.util.UUID;
 
 public class Constants {
-    private Constants(){};
+    public static String MAC_ADDRESS = "mac_address";
+
+    private Constants() {
+    }
 
     public static final UUID CHAT_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a661");
